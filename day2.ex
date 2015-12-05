@@ -43,4 +43,14 @@ defmodule Day2Test do
     assert 58 == Day2.surface_to_order(2, 3, 4)
     assert 43 == Day2.surface_to_order(1, 1, 10)
   end
+
+  test "input" do
+    File.stream!("day2.txt")
+    |> Stream.map(fn (string) -> String.split(string, "x") end)
+    |> Stream.map(fn (strings) -> Enum.map(strings, &string_to_int/1) end)
+    |> Enum.reduce(0, fn([l, w, h], acc) -> acc + Day2.surface_to_order(l, w, h) end)
+    |> IO.puts
+  end
+
+  defp string_to_int(s), do: Integer.parse(s) |> elem(0)
 end
