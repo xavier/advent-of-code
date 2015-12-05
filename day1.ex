@@ -53,4 +53,10 @@ defmodule Day1Test do
     assert -3 == Day1.floor(")))")
     assert -3 == Day1.floor(")())())")
   end
+
+  test "input" do
+    File.read!("day1.txt")
+    |> Day1.floor
+    |> IO.puts
+  end
 end
