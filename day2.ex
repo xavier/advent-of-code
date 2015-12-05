@@ -25,10 +25,15 @@ defmodule Day2 do
 
   """
 
-  def surface_to_order(l, w, h) do
+  def paper_surface(l, w, h) do
     sides = [l * w, w * h, h * l]
     paper = Enum.min(sides)
     Enum.reduce(sides, paper, fn(x, acc) -> acc + x * 2 end)
+  end
+
+  def ribbon_length(l, w, h) do
+    bow = l * w * h
+    bow + 2 * Enum.min([l + w, w + h, h + l])
   end
 
 end
@@ -39,17 +44,24 @@ ExUnit.start
 defmodule Day2Test do
   use ExUnit.Case, async: true
 
-  test "surface_to_order" do
-    assert 58 == Day2.surface_to_order(2, 3, 4)
-    assert 43 == Day2.surface_to_order(1, 1, 10)
+  test "paper_surface" do
+    assert 58 == Day2.paper_surface(2, 3, 4)
+    assert 43 == Day2.paper_surface(1, 1, 10)
+  end
+
+  test "ribbon_length" do
+    assert 34 == Day2.ribbon_length(2, 3, 4)
+    assert 14 == Day2.ribbon_length(1, 1, 10)
   end
 
   test "input" do
     File.stream!("day2.txt")
     |> Stream.map(fn (string) -> String.split(string, "x") end)
     |> Stream.map(fn (strings) -> Enum.map(strings, &string_to_int/1) end)
-    |> Enum.reduce(0, fn([l, w, h], acc) -> acc + Day2.surface_to_order(l, w, h) end)
-    |> IO.puts
+    |> Enum.reduce({0, 0}, fn([l, w, h], {surface, length}) ->
+      {surface + Day2.paper_surface(l, w, h), length + Day2.ribbon_length(l, w, h)}
+    end)
+    |> IO.inspect
   end
 
   defp string_to_int(s), do: Integer.parse(s) |> elem(0)
