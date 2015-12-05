@@ -24,14 +24,15 @@ defmodule Day3 do
 
   """
 
-  def count_houses(moves), do: visit(moves, {0, 0}, HashSet.new) |> Set.size
+  def count_houses(moves), do: visit(moves, {0, 0}) |> Set.size
+
+  defp visit(moves, pos), do: visit(moves, pos, HashSet.new)
 
   defp visit("", pos, visited), do: Set.put(visited, pos)
   defp visit(">" <> moves, {x, y}, visited), do: visit(moves, {x + 1, y}, Set.put(visited, {x, y}))
   defp visit("<" <> moves, {x, y}, visited), do: visit(moves, {x - 1, y}, Set.put(visited, {x, y}))
   defp visit("^" <> moves, {x, y}, visited), do: visit(moves, {x, y + 1}, Set.put(visited, {x, y}))
   defp visit("v" <> moves, {x, y}, visited), do: visit(moves, {x, y - 1}, Set.put(visited, {x, y}))
-
 
 end
 
