@@ -34,6 +34,28 @@ defmodule Day3 do
   defp visit("^" <> moves, {x, y}, visited), do: visit(moves, {x, y + 1}, Set.put(visited, {x, y}))
   defp visit("v" <> moves, {x, y}, visited), do: visit(moves, {x, y - 1}, Set.put(visited, {x, y}))
 
+  def count_houses_robot(moves) do
+    {santa_moves, robot_moves} = split_workload(moves)
+
+    santa_visits = visit(santa_moves, {0, 0})
+    robot_visits = visit(robot_moves, {0, 0})
+
+    Set.union(santa_visits, robot_visits) |> Set.size
+  end
+
+  defp split_workload(moves) do
+    {santa_moves, robot_moves} =
+      moves
+      |> String.codepoints
+      |> Enum.with_index
+      |> Enum.partition(fn {move, idx} -> rem(idx, 2) == 0 end)
+    {rebuild_moves(santa_moves), rebuild_moves(robot_moves)}
+  end
+
+  defp rebuild_moves(pairs) do
+    Enum.map_join(pairs, &(elem(&1, 0)))
+  end
+
 end
 
 
@@ -48,9 +70,23 @@ defmodule Day3Test do
     assert 2 == Day3.count_houses("^v^v^v^v^v")
   end
 
-  test "input" do
+  test "count_houses_robot" do
+    assert 3 == Day3.count_houses_robot("^v")
+    assert 3 == Day3.count_houses_robot("^>v<")
+    assert 11 == Day3.count_houses_robot("^v^v^v^v^v")
+  end
+
+  test "input count_houses" do
+    IO.puts "count_houses"
     File.read!("day3.txt")
     |> Day3.count_houses
+    |> IO.puts
+  end
+
+  test "input count_houses_robot" do
+    IO.puts "count_houses_robot"
+    File.read!("day3.txt")
+    |> Day3.count_houses_robot
     |> IO.puts
   end
 end
