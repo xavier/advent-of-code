@@ -47,4 +47,10 @@ defmodule Day3Test do
     assert 4 == Day3.count_houses("^>v<")
     assert 2 == Day3.count_houses("^v^v^v^v^v")
   end
+
+  test "input" do
+    File.read!("day3.txt")
+    |> Day3.count_houses
+    |> IO.puts
+  end
 end
