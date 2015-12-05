@@ -51,4 +51,8 @@ defmodule Day4Test do
     assert 609043 == Day4.mine("abcdef")
     assert 1048970 == Day4.mine("pqrstuv")
   end
+
+  test "input" do
+    IO.puts Day4.mine("ckczppom")
+  end
 end
