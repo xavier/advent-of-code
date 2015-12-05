@@ -27,9 +27,16 @@ defmodule Day1 do
 
   def floor(instructions), do: step(instructions, 0)
 
-  defp step("", acc), do: acc
-  defp step("(" <> instructions, acc), do: step(instructions, acc + 1)
-  defp step(")" <> instructions, acc), do: step(instructions, acc - 1)
+  defp step("", floor), do: floor
+  defp step("(" <> instructions, floor), do: step(instructions, floor + 1)
+  defp step(")" <> instructions, floor), do: step(instructions, floor - 1)
+
+  def basement(instructions), do: step_basement(instructions, 0, 1)
+
+  defp step_basement("", _, _), do: 0
+  defp step_basement(")" <> _, 0, position), do: position
+  defp step_basement("(" <> instructions, floor, position), do: step_basement(instructions, floor + 1, position + 1)
+  defp step_basement(")" <> instructions, floor, position), do: step_basement(instructions, floor - 1, position + 1)
 
 end
 
@@ -54,9 +61,22 @@ defmodule Day1Test do
     assert -3 == Day1.floor(")())())")
   end
 
-  test "input" do
+  test "basement" do
+    assert 1 == Day1.basement(")")
+    assert 5 == Day1.basement("()())")
+  end
+
+  test "input floor" do
+    IO.puts "floor"
     File.read!("day1.txt")
     |> Day1.floor
+    |> IO.puts
+  end
+
+  test "input basement" do
+    IO.puts "basement"
+    File.read!("day1.txt")
+    |> Day1.basement
     |> IO.puts
   end
 end
