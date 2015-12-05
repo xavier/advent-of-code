@@ -25,6 +25,29 @@ defmodule Day5 do
 
   How many strings are nice?
 
+  --- Part Two ---
+
+  Realizing the error of his ways, Santa has switched to a better model of determining
+  whether a string is naughty or nice. None of the old rules apply, as they are all clearly ridiculous.
+
+  Now, a nice string is one with all of the following properties:
+
+  - It contains a pair of any two letters that appears at least twice in the string without overlapping,
+    like xyxy (xy) or aabcdefgaa (aa), but not like aaa (aa, but it overlaps).
+  - It contains at least one letter which repeats with exactly one letter between them, like xyx,
+    abcdefeghi (efe), or even aaa.
+
+  For example:
+
+  - qjhvhtzxzqqjkmpb is nice because is has a pair that appears twice (qj) and a letter
+    that repeats with exactly one letter between them (zxz).
+  - xxyxx is nice because it has a pair that appears twice and a letter that repeats
+    with one between, even though the letters used by each rule overlap.
+  - uurcxstgmygtbstg is naughty because it has a pair (tg) but no repeat with a single
+    letter between them.
+  - ieodomkazucvgmuy is naughty because it has a repeating letter with one between (odo),
+    but no pair that appears twice
+
   """
 
   def nice?(string) do
@@ -49,6 +72,18 @@ defmodule Day5 do
 
   defp forbidden?(string), do: String.match?(string, @forbidden)
 
+  def nice2?(string) do
+    has_pair_twice?(string) && has_repeating_letter?(string)
+  end
+
+  def has_pair_twice?(<<_>>), do: false
+  def has_pair_twice?(<<_, _>>), do: false
+  def has_pair_twice?(<<a, b>> <> rest), do: String.contains?(rest, <<a, b>>) || has_pair_twice?(<<b>> <> rest)
+
+  @repeating_letter ~r/([a-z]).\1/
+
+  def has_repeating_letter?(string), do: String.match?(string, @repeating_letter)
+
 end
 
 
@@ -65,9 +100,25 @@ defmodule Day5Test do
     refute Day5.nice?("dvszwmarrgswjxmb")
   end
 
-  test "count" do
+  test "nice2?" do
+    assert Day5.nice2?("qjhvhtzxzqqjkmpb")
+    assert Day5.nice2?("xxyxx")
+    refute Day5.nice2?("uurcxstgmygtbstg")
+    refute Day5.nice2?("ieodomkazucvgmuy")
+  end
+
+  test "count nice" do
+    IO.puts "nice"
     File.stream!("day5.txt")
     |> Enum.filter(&Day5.nice?/1)
+    |> Enum.count
+    |> IO.puts
+  end
+
+  test "count nice2" do
+    IO.puts "nice2"
+    File.stream!("day5.txt")
+    |> Enum.filter(&Day5.nice2?/1)
     |> Enum.count
     |> IO.puts
   end
