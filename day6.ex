@@ -29,6 +29,31 @@ defmodule Day6 do
     four lights.
 
   After following the instructions, how many lights are lit?
+
+  --- Part Two ---
+
+  You just finish implementing your winning light pattern when you realize you
+  mistranslated Santa's message from Ancient Nordic Elvish.
+
+  The light grid you bought actually has individual brightness controls; each light
+  can have a brightness of zero or more. The lights all start at zero.
+
+  The phrase turn on actually means that you should increase the brightness of those
+  lights by 1.
+
+  The phrase turn off actually means that you should decrease the brightness of those
+  lights by 1, to a minimum of zero.
+
+  The phrase toggle actually means that you should increase the brightness of those
+  lights by 2.
+
+  What is the total brightness of all lights combined after following Santa's instructions?
+
+  For example:
+
+  - turn on 0,0 through 0,0 would increase the total brightness by 1.
+  - toggle 0,0 through 999,999 would increase the total brightness by 2000000.
+
   """
 
   def command(grid, "turn on", from_coords, to_coords) do
@@ -49,27 +74,32 @@ defmodule Day6 do
   end
 
   def new_grid do
-    HashSet.new
+    Map.new
   end
 
-  defp turn_on(grid, coords) do
-    Set.put(grid, coords)
+  defp turn_on(grid, coords), do: increase_brightness(grid, coords, 1)
+
+  defp toggle(grid, coords), do: increase_brightness(grid, coords, 2)
+
+  defp increase_brightness(grid, coords, amount) do
+    Dict.update(grid, coords, amount, fn (brightness) -> brightness + amount end)
   end
 
   defp turn_off(grid, coords) do
-    Set.delete(grid, coords)
-  end
-
-  def toggle(grid, coords) do
-    if turned_on?(grid, coords) do
-      turn_off(grid, coords)
-    else
-      turn_on(grid, coords)
+    case Dict.get(grid, coords) do
+    nil ->
+      grid
+    1 ->
+      Dict.delete(grid, coords)
+    brightness ->
+      Dict.put(grid, coords, brightness - 1)
     end
   end
 
-  def turned_on?(grid, coords) do
-    Set.member?(grid, coords)
+  def total_brightness(grid) do
+    grid
+    |> Dict.values
+    |> Enum.sum
   end
 
   # turn on 606,361 through 892,600
@@ -89,8 +119,10 @@ end
 
 ExUnit.start
 
-defmodule Day6Test do
+defmodule Day6Part1Test do
   use ExUnit.Case, async: true
+
+  @moduletag timeout: 5 * 60 * 1000
 
   test "turn on" do
     assert 1_000_000 == Enum.count(Day6.command(Day6.new_grid, "turn on", {0, 0}, {999, 999}))
@@ -105,11 +137,46 @@ defmodule Day6Test do
     assert 1_000 == Enum.count(Day6.command(Day6.new_grid, "toggle", {0, 0}, {999, 0}))
   end
 
-  test "input" do
+  test "total_brightness with turn on" do
+    total_brightness =
+      Day6.new_grid
+      |> Day6.command("turn on", {0, 0}, {0, 0})
+      |> Day6.total_brightness
+    assert 1 == total_brightness
+  end
+
+  test "total_brightness with turn off" do
+    total_brightness =
+      Day6.new_grid
+      |> Day6.command("turn on", {0, 0}, {1, 0})
+      |> Day6.command("turn off", {0, 0}, {0, 0})
+      |> Day6.total_brightness
+    assert 1 == total_brightness
+  end
+
+  test "total_brightness with toggle" do
+    total_brightness =
+      Day6.new_grid
+      |> Day6.command("toggle", {0, 0}, {999, 999})
+      |> Day6.total_brightness
+    assert 2_000_000 == total_brightness
+  end
+
+  test "input part 1" do
+    IO.puts "lights on"
     File.stream!("day6.txt")
     |> Stream.map(&Day6.parse/1)
     |> Enum.reduce(Day6.new_grid, fn ([cmd, c1, c2], grid) -> Day6.command(grid, cmd, c1, c2) end)
     |> Enum.count
+    |> IO.puts
+  end
+
+  test "input part 2" do
+    IO.puts "total brightness"
+    File.stream!("day6.txt")
+    |> Stream.map(&Day6.parse/1)
+    |> Enum.reduce(Day6.new_grid, fn ([cmd, c1, c2], grid) -> Day6.command(grid, cmd, c1, c2) end)
+    |> Day6.total_brightness
     |> IO.puts
   end
 end
