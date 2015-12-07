@@ -182,4 +182,20 @@ defmodule Day7Test do
     |> Day7.value_of("a")
     |> IO.puts
   end
+
+  test "part 2" do
+
+    original_circuit =
+      File.stream!("day7.txt")
+      |> Enum.reduce(Day7.new_circuit, &Day7.parse/2)
+
+    signal_from_a = Day7.value_of(original_circuit, "a")
+
+    new_value_of_a =
+      Dict.put(original_circuit, "b", {:value, signal_from_a})
+      |> Day7.value_of("a")
+
+    IO.puts "new value of a = #{new_value_of_a}"
+
+  end
 end
