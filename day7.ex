@@ -110,30 +110,36 @@ defmodule Day7 do
   def eval({:=, operand}, circuit, env), do: eval(operand, circuit, env)
   def eval({:not, operand1}, circuit, env) do
     {value, env} = eval(operand1, circuit, env)
-    {Bitwise.bnot(value) |> clip, env}
+    {bnot16(value), env}
   end
   def eval({:and, operand1, operand2}, circuit, env) do
     {value1, env} = eval(operand1, circuit, env)
     {value2, env} = eval(operand2, circuit, env)
-    {Bitwise.band(value1, value2) |> clip, env}
+    {band16(value1, value2), env}
   end
   def eval({:or, operand1, operand2}, circuit, env) do
     {value1, env} = eval(operand1, circuit, env)
     {value2, env} = eval(operand2, circuit, env)
-    {Bitwise.bor(value1, value2) |> clip, env}
+    {bor16(value1, value2), env}
   end
   def eval({:rshift, operand1, operand2}, circuit, env) do
     {value1, env} = eval(operand1, circuit, env)
     {value2, env} = eval(operand2, circuit, env)
-    {Bitwise.bsr(value1, value2) |> clip, env}
+    {bsr16(value1, value2), env}
   end
   def eval({:lshift, operand1, operand2}, circuit, env) do
     {value1, env} = eval(operand1, circuit, env)
     {value2, env} = eval(operand2, circuit, env)
-    {Bitwise.bsl(value1, value2) |> clip, env}
+    {bsl16(value1, value2), env}
   end
 
-  defp clip(x), do: Bitwise.band(x, 0xffff)
+  defp bnot16(x),    do: Bitwise.bnot(x)    |> clip16
+  defp band16(x, y), do: Bitwise.band(x, y) |> clip16
+  defp bor16(x, y),  do: Bitwise.bor(x, y)  |> clip16
+  defp bsl16(x, y),  do: Bitwise.bsl(x, y)  |> clip16
+  defp bsr16(x, y),  do: Bitwise.bsr(x, y)  |> clip16
+
+  defp clip16(x),    do: Bitwise.band(x, 0xffff)
 
 end
 
