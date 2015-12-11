@@ -78,14 +78,14 @@ defmodule Day3Test do
 
   test "input count_houses" do
     IO.puts "count_houses"
-    File.read!("day3.txt")
+    File.read!("day03.txt")
     |> Day3.count_houses
     |> IO.puts
   end
 
   test "input count_houses_robot" do
     IO.puts "count_houses_robot"
-    File.read!("day3.txt")
+    File.read!("day03.txt")
     |> Day3.count_houses_robot
     |> IO.puts
   end

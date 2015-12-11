@@ -99,7 +99,7 @@ defmodule Day9Test do
   test "input" do
 
     graph =
-      File.stream!("day9.txt")
+      File.stream!("day09.txt")
       |> Stream.map(&Day9.parse/1)
       |> Enum.reduce(HashDict.new, &Day9.build_graph/2)
 

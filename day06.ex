@@ -164,7 +164,7 @@ defmodule Day6Part1Test do
 
   test "input part 1" do
     IO.puts "lights on"
-    File.stream!("day6.txt")
+    File.stream!("day06.txt")
     |> Stream.map(&Day6.parse/1)
     |> Enum.reduce(Day6.new_grid, fn ([cmd, c1, c2], grid) -> Day6.command(grid, cmd, c1, c2) end)
     |> Enum.count
@@ -173,7 +173,7 @@ defmodule Day6Part1Test do
 
   test "input part 2" do
     IO.puts "total brightness"
-    File.stream!("day6.txt")
+    File.stream!("day06.txt")
     |> Stream.map(&Day6.parse/1)
     |> Enum.reduce(Day6.new_grid, fn ([cmd, c1, c2], grid) -> Day6.command(grid, cmd, c1, c2) end)
     |> Day6.total_brightness

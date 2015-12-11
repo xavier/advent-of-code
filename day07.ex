@@ -177,7 +177,7 @@ defmodule Day7Test do
   end
 
   test "input part 1" do
-    File.stream!("day7.txt")
+    File.stream!("day07.txt")
     |> Enum.reduce(Day7.new_circuit, &Day7.parse/2)
     |> Day7.value_of("a")
     |> IO.puts
@@ -186,7 +186,7 @@ defmodule Day7Test do
   test "part 2" do
 
     original_circuit =
-      File.stream!("day7.txt")
+      File.stream!("day07.txt")
       |> Enum.reduce(Day7.new_circuit, &Day7.parse/2)
 
     signal_from_a = Day7.value_of(original_circuit, "a")

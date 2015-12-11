@@ -55,7 +55,7 @@ defmodule Day2Test do
   end
 
   test "input" do
-    File.stream!("day2.txt")
+    File.stream!("day02.txt")
     |> Stream.map(fn (string) -> String.split(string, "x") end)
     |> Stream.map(fn (strings) -> Enum.map(strings, &string_to_int/1) end)
     |> Enum.reduce({0, 0}, fn([l, w, h], {surface, length}) ->

@@ -112,7 +112,7 @@ defmodule Day8Test do
 
   test "input part 1" do
     IO.puts "part 1"
-    File.stream!("day8.txt")
+    File.stream!("day08.txt")
     |> Stream.map(&String.strip/1)
     |> Stream.map(&Day8.size_difference/1)
     |> Enum.sum
@@ -121,7 +121,7 @@ defmodule Day8Test do
 
   test "input part 2" do
     IO.puts "part 2"
-    File.stream!("day8.txt")
+    File.stream!("day08.txt")
     |> Stream.map(&String.strip/1)
     |> Stream.map(fn (str) -> {str, Day8.encode(str)} end)
     #|> Stream.map(fn (x) -> IO.inspect(x) end)

@@ -68,7 +68,7 @@ defmodule Day1Test do
 
   test "input floor" do
     IO.puts "floor"
-    File.read!("day1.txt")
+    File.read!("day01.txt")
     |> Day1.floor
     |> IO.puts
   end

@@ -109,7 +109,7 @@ defmodule Day5Test do
 
   test "count nice" do
     IO.puts "nice"
-    File.stream!("day5.txt")
+    File.stream!("day05.txt")
     |> Enum.filter(&Day5.nice?/1)
     |> Enum.count
     |> IO.puts
@@ -117,7 +117,7 @@ defmodule Day5Test do
 
   test "count nice2" do
     IO.puts "nice2"
-    File.stream!("day5.txt")
+    File.stream!("day05.txt")
     |> Enum.filter(&Day5.nice2?/1)
     |> Enum.count
     |> IO.puts
