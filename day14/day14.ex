@@ -30,6 +30,24 @@ defmodule Day14 do
   Given the descriptions of each reindeer (in your puzzle input), after
   exactly 2503 seconds, what distance has the winning reindeer traveled?
 
+  --- Part Two ---
+
+  Seeing how reindeer move in bursts, Santa decides he's not pleased with the old scoring system.
+
+  Instead, at the end of each second, he awards one point to the reindeer currently in the lead.
+  (If there are multiple reindeer tied for the lead, they each get one point.) He keeps the
+  traditional 2503 second time limit, of course, as doing otherwise would be entirely ridiculous.
+
+  Given the example reindeer from above, after the first second, Dancer is in the lead and gets one
+  point. He stays in the lead until several seconds into Comet's second burst: after the 140th second,
+  Comet pulls into the lead and gets his first point. Of course, since Dancer had been in the lead for
+  the 139 seconds before that, he has accumulated 139 points by the 140th second.
+
+  After the 1000th second, Dancer has accumulated 689 points, while poor Comet, our old champion, only
+  has 312. So, with the new scoring system, Dancer would win (if the race ended at 1000 seconds).
+
+  Again given the descriptions of each reindeer (in your puzzle input), after exactly 2503 seconds,
+  how many points does the winning reindeer have?
 
   """
 
@@ -44,20 +62,40 @@ defmodule Day14 do
 
   defp to_int(string), do: Integer.parse(string) |> elem(0)
 
-  # def fly({_, speed, fly_time, rest_time}, duration) do
-  #   case div(duration, fly_time + rest_time) do
-  #     0 ->
-  #       speed * duration
-  #     full_cycles ->
-  #       IO.puts "#{speed} * #{fly_time} * {full_cycles}"
-  #       speed * fly_time * full_cycles
-  #   end
-  # end
-
   def fly(_, duration) when duration < 0, do: 0
   def fly({_, speed, fly_time, _}, duration) when duration <= fly_time, do: speed * duration
   def fly({name, speed, fly_time, rest_time}, duration) do
     speed * fly_time + fly({name, speed, fly_time, rest_time}, duration - fly_time - rest_time)
+  end
+
+  def race(reindeers, duration) do
+    (1..duration) |> Enum.reduce(initial_leaderboard(reindeers), fn (time, ldb) -> fly_race(ldb, time) end)
+  end
+
+  def initial_leaderboard(reindeers) do
+    for {name, speed, fly_time, rest_time} <- reindeers, into: %{} do
+      {name, {speed, fly_time, rest_time, 0, 0}}
+    end
+  end
+
+  def fly_race(leaderboard, time) do
+    sorted =
+      leaderboard
+      |> Enum.map(fn ({name, {speed, fly_time, rest_time, dist, points}}) ->
+        {name, {speed, fly_time, rest_time, fly({name, speed, fly_time, rest_time}, time), points}}
+      end)
+      |> Enum.sort_by(fn ({_, {_, _, _, dist, _points}}) -> -dist end)
+
+    [{_, {_, _, _, leading_distance, _}}|_] = sorted
+
+    sorted
+    |> Enum.into(leaderboard, fn ({name, {speed, fly_time, rest_time, dist, points}}) ->
+      if dist == leading_distance do
+        {name, {speed, fly_time, rest_time, dist, points + 1}}
+      else
+        {name, {speed, fly_time, rest_time, dist, points}}
+      end
+    end)
   end
 
 end
@@ -95,6 +133,55 @@ defmodule Day14Test do
     assert 1056 == Day14.fly(dancer, 1000)
   end
 
+  test "initial_leaderboard" do
+
+    comet  = {"Comet", 14, 10, 127}
+    dancer = {"Dancer", 16, 11, 162}
+
+    expected = %{
+      "Comet" => {14, 10, 127, 0, 0},
+      "Dancer" => {16, 11, 162, 0, 0}
+    }
+
+    assert expected == Day14.initial_leaderboard([comet, dancer])
+
+  end
+
+  test "fly_race" do
+
+    leaderboard = %{
+      "Comet" => {14, 10, 127, 0, 0},
+      "Dancer" => {16, 11, 162, 0, 0}
+    }
+
+    expected = %{
+      "Comet" => {14, 10, 127, 14, 0},
+      "Dancer" => {16, 11, 162, 16, 1}
+    }
+
+
+    assert expected == Day14.fly_race(leaderboard, 1)
+
+  end
+
+  test "race" do
+
+    #After the 1000th second, Dancer has accumulated 689 points, while poor Comet, our old champion, only
+    #has 312. So, with the new scoring system, Dancer would win (if the race ended at 1000 seconds).
+
+    reindeers = [
+      {"Comet", 14, 10, 127},
+      {"Dancer", 16, 11, 162}
+    ]
+
+    expected = %{
+      "Comet" => {14, 10, 127, 1120, 312},
+      "Dancer" => {16, 11, 162, 1056, 689}
+    }
+
+    assert expected == Day14.race(reindeers, 1000)
+  end
+
 
   test "input 1" do
     IO.puts "input 1"
@@ -105,4 +192,14 @@ defmodule Day14Test do
     |> IO.inspect
   end
 
+  test "input 2" do
+    IO.puts "input 2"
+    File.stream!("day14.txt")
+    |> Enum.map(&Day14.parse/1)
+    |> Day14.race(2503)
+    |> IO.inspect
+    |> Enum.map(fn({_, {_, _, _, _, points}}) -> points end)
+    |> Enum.max
+    |> IO.puts
+  end
 end
