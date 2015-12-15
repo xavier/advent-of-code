@@ -105,30 +105,32 @@ defmodule Day15 do
 
 
   def optimal_quantities(ingredients_map) do
-    ingredients = Dict.keys(ingredients_map)
-    num = Enum.count(ingredients)
-    combinations(num, 100)
-    |> Enum.map(fn (quantities) ->
-      combo = ingredients |> Enum.zip(quantities) |> Enum.into(%{})
-      {score, total_cal} = total_score(combo, ingredients_map)
-      {combo, score}
-    end)
-    |> Enum.max_by(&elem(&1, 1))
+    {combo, total_score, _} =
+      ingredients_map
+      |> all_total_scores
+      |> Enum.max_by(&elem(&1, 1))
+    {combo, total_score}
   end
 
   def optimal_quantities(ingredients_map, max_cal) do
-    ingredients = Dict.keys(ingredients_map)
-    num = Enum.count(ingredients)
     {combo, total_score, _} =
-      combinations(num, 100)
-      |> Enum.map(fn (quantities) ->
-        combo = ingredients |> Enum.zip(quantities) |> Enum.into(%{})
-        {score, total_cal} = total_score(combo, ingredients_map)
-        {combo, score, total_cal}
-      end)
+      ingredients_map
+      |> all_total_scores
       |> Enum.filter(fn({_, _, cal}) -> cal == max_cal end)
       |> Enum.max_by(&elem(&1, 1))
     {combo, total_score}
+  end
+
+  defp all_total_scores(ingredients_map) do
+    ingredients = Dict.keys(ingredients_map)
+
+    Enum.count(ingredients)
+    |> combinations(100)
+    |> Enum.map(fn (quantities) ->
+      combo = ingredients |> Enum.zip(quantities) |> Enum.into(%{})
+      {score, total_cal} = total_score(combo, ingredients_map)
+      {combo, score, total_cal}
+    end)
   end
 
   defp combinations(1, total), do: [[total]]
