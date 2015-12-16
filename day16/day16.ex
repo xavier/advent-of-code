@@ -45,6 +45,20 @@ defmodule Day16 do
   Things missing from your list aren't zero - you simply don't remember the value.
 
   What is the number of the Sue that got you the gift?
+
+  --- Part Two ---
+
+  As you're about to send the thank you note, something in the MFCSAM's instructions
+  catches your eye. Apparently, it has an outdated retroencabulator, and so the output
+  from the machine isn't exact values - some of them indicate ranges.
+
+  In particular, the cats and trees readings indicates that there are greater than
+  that many (due to the unpredictable nuclear decay of cat dander and tree pollen),
+  while the pomeranians and goldfish readings indicate that there are fewer than
+  that many (due to the modial interaction of magnetoreluctance).
+
+  What is the number of the real Aunt Sue?
+
   """
 
   @regex_line ~r/^Sue (\d+): (.*)$/
@@ -72,11 +86,24 @@ defmodule Day16 do
     end)
   end
 
-  defp keep?(key, value, {_, facts}) do
-    case Dict.get(facts, key) do
-      ^value -> true
-      nil -> true
-      _ -> false
+  defp keep?(key, value, facts) when key in ~w[cats trees] do
+    compare_value?(key, value, facts, :gt)
+  end
+  defp keep?(key, value, facts) when key in ~w[pomeranians goldfish] do
+    compare_value?(key, value, facts, :lt)
+  end
+  defp keep?(key, value, facts) do
+    compare_value?(key, value, facts)
+  end
+
+  defp compare_value?(key, value, {_, facts}, op \\ :eq) do
+    v = Dict.get(facts, key)
+    cond do
+      op == :lt && v < value -> true
+      op == :gt && v > value -> true
+      op == :eq && v == value -> true
+      v == nil -> true
+      true -> false
     end
   end
 
