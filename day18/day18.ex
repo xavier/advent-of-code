@@ -90,17 +90,77 @@ defmodule Day18 do
   In your grid of 100x100 lights, given your initial configuration,
   how many lights are on after 100 steps?
 
+  --- Part Two ---
+
+  You flip the instructions over; Santa goes on to point out that this is all
+  just an implementation of Conway's Game of Life. At least, it was, until you
+  notice that something's wrong with the grid of lights you bought: four lights,
+  one in each corner, are stuck on and can't be turned off. The example above will
+  actually run like this:
+
+  Initial state:
+  ##.#.#
+  ...##.
+  #....#
+  ..#...
+  #.#..#
+  ####.#
+
+  After 1 step:
+  #.##.#
+  ####.#
+  ...##.
+  ......
+  #...#.
+  #.####
+
+  After 2 steps:
+  #..#.#
+  #....#
+  .#.##.
+  ...##.
+  .#..##
+  ##.###
+
+  After 3 steps:
+  #...##
+  ####.#
+  ..##.#
+  ......
+  ##....
+  ####.#
+
+  After 4 steps:
+  #.####
+  #....#
+  ...#..
+  .##...
+  #.....
+  #.#..#
+
+  After 5 steps:
+  ##.###
+  .##..#
+  .##...
+  .##...
+  #.#...
+  ##...#
+  After 5 steps, this example now has 17 lights on.
+
+  In your grid of 100x100 lights, given your initial configuration, but with the
+  four corners always in the on state, how many lights are on after 100 steps?
+
   """
 
   def new_grid do
     HashDict.new
   end
 
-  defp turn_on(grid, coords),  do: Dict.put(grid, coords, true)
-  defp turn_off(grid, coords), do: Dict.delete(grid, coords)
+  def turn_on(grid, coords),  do: Dict.put(grid, coords, true)
+  def turn_off(grid, coords), do: Dict.delete(grid, coords)
 
-  defp toggle(grid, coords, true),  do: turn_on(grid, coords)
-  defp toggle(grid, coords, false), do: turn_off(grid, coords)
+  def toggle(grid, coords, true),  do: turn_on(grid, coords)
+  def toggle(grid, coords, false), do: turn_off(grid, coords)
 
   def is_on?(_, {x, y}) when x < 0 or x > 99 or y < 0 or y > 99, do: false
   def is_on?(grid, coords), do: Dict.has_key?(grid, coords)
@@ -142,11 +202,11 @@ defmodule Day18 do
     end)
   end
 
-  def parse_grid(text) do
+  def parse_grid(text, grid \\ nil) do
     text
     |> String.split("\n")
     |> Enum.with_index
-    |> Enum.reduce(new_grid, fn ({line, y}, g) -> parse_line(line, y, g) end)
+    |> Enum.reduce(grid || new_grid, fn ({line, y}, g) -> parse_line(line, y, g) end)
   end
 
   def parse_line(line, y, grid) do
@@ -161,10 +221,36 @@ defmodule Day18 do
 
 end
 
+defmodule Day18Part2 do
+
+  def new_grid(size \\ 100) do
+    max = size - 1
+    HashDict.new
+    |> Day18.turn_on({0, 0})
+    |> Day18.turn_on({max, 0})
+    |> Day18.turn_on({0, max})
+    |> Day18.turn_on({max, max})
+  end
+
+  def next_grid(grid, size \\ 100) do
+    Day18.grid_coords(size - 1)
+    |> Enum.reduce(new_grid(size), fn(coords, g) ->
+      Day18.toggle(g, coords, next_light_state(grid, coords))
+    end)
+  end
+
+  def next_light_state(_, {0, 0}), do: true
+  def next_light_state(_, {0, 99}), do: true
+  def next_light_state(_, {99, 0}), do: true
+  def next_light_state(_, {99, 99}), do: true
+  def next_light_state(grid, coords), do: Day18.next_light_state(grid, coords)
+
+end
+
 
 ExUnit.start
 
-defmodule Day18Part1Test do
+defmodule Day18Test do
   use ExUnit.Case, async: true
 
   @moduletag timeout: 5 * 60 * 1000
@@ -214,6 +300,24 @@ defmodule Day18Part1Test do
 
     1..100
     |> Enum.reduce(initial_grid, fn (_, grid) -> Day18.next_grid(grid) end)
+    |> Enum.count
+    |> IO.puts
+  end
+
+  test "input part 2" do
+    IO.puts "part 2"
+
+    initial_grid =
+      File.read!("day18.txt")
+      |> Day18.parse_grid(Day18Part2.new_grid)
+
+    assert Day18.is_on?(initial_grid, {0, 0})
+    assert Day18.is_on?(initial_grid, {99, 0})
+    assert Day18.is_on?(initial_grid, {0, 99})
+    assert Day18.is_on?(initial_grid, {99, 99})
+
+    1..100
+    |> Enum.reduce(initial_grid, fn (_, grid) -> Day18Part2.next_grid(grid) end)
     |> Enum.count
     |> IO.puts
   end
