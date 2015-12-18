@@ -106,12 +106,17 @@ defmodule Day18 do
   def is_on?(grid, coords), do: Dict.has_key?(grid, coords)
 
   def next_grid(grid, size \\ 100) do
-    max = size - 1
-    all_coords = for x <- 0..max, y <- 0..max, do: {x, y}
-
-    all_coords
+    grid_coords(size - 1)
     |> Enum.reduce(new_grid, fn(coords, g) ->
       toggle(g, coords, next_light_state(grid, coords))
+    end)
+  end
+
+  def grid_coords(max) do
+    Stream.flat_map(0..max, fn x ->
+      Stream.flat_map(0..max, fn y ->
+        [{x, y}]
+      end)
     end)
   end
 
