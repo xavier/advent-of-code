@@ -67,6 +67,14 @@ defmodule Day21 do
   You have 100 hit points. The boss's actual stats are in your puzzle input.
   What is the least amount of gold you can spend and still win the fight?
 
+  --- Part Two ---
+
+  Turns out the shopkeeper is working with the boss, and can persuade you
+  to buy whatever items he wants. The other rules still apply, and he still
+  only has one of each item.
+
+  What is the most amount of gold you can spend and still lose the fight?
+
   """
 
   defmodule Character do
@@ -109,7 +117,7 @@ defmodule Day21 do
   end
 
   def player_combinations(hit) do
-    for weapon <- [nil|weapons],
+    for weapon <- weapons,
         armor  <- [nil|armors],
         ring1  <- [nil|rings],
         ring2  <- [nil|rings] do
@@ -117,6 +125,7 @@ defmodule Day21 do
       items =
         [weapon, armor, ring1, ring2]
         |> Enum.reject(fn (item) -> is_nil(item) end)
+        |> Enum.uniq
 
       equip(%Character{hit: hit}, items)
 
@@ -190,9 +199,19 @@ defmodule Day21Test do
   end
 
   test "input1", %{boss: boss} do
+    IO.puts "part 1"
     Day21.player_combinations(100)
     |> Enum.filter(fn (player) -> Day21.fight(player, boss) |> elem(0) end)
     |> Enum.min_by(fn (player) -> player.items_value end)
+    |> IO.inspect
+  end
+
+  test "input 2", %{boss: boss} do
+    IO.puts "part 2"
+    Day21.player_combinations(100)
+    |> Enum.reject(fn (player) -> Day21.fight(player, boss) |> elem(0) end)
+    |> Enum.map(fn (player) -> player.items_value end)
+    |> Enum.max
     |> IO.inspect
   end
 
