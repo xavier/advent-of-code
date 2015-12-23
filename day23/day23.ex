@@ -168,5 +168,16 @@ defmodule Day23Test do
     |> Day23.run
     |> IO.inspect
   end
+
+  test "part 2" do
+    IO.puts "part 2"
+    program =
+      File.read!("day23.txt")
+      |> Day23.parse
+
+    [{:inc, "a"}|program]
+    |> Day23.run
+    |> IO.inspect
+  end
 end
 
