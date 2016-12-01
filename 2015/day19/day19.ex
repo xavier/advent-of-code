@@ -46,10 +46,38 @@ defmodule Day19 do
   How many distinct molecules can be created after all the different ways you can do
   one replacement on the medicine molecule?
 
+  --- Part Two ---
+
+  Now that the machine is calibrated, you're ready to begin molecule fabrication.
+
+  Molecule fabrication always begins with just a single electron, e, and applying
+  replacements one at a time, just like the ones during calibration.
+
+  For example, suppose you have the following replacements:
+
+  e => H
+  e => O
+  H => HO
+  H => OH
+  O => HH
+
+  If you'd like to make HOH, you start with e, and then make the following
+  replacements:
+
+  e => O to get O
+  O => HH to get HH
+  H => OH (on the second H) to get HOH
+
+  So, you could make HOH after 3 steps. Santa's favorite molecule, HOHOHO,
+  can be made in 6 steps.
+
+  How long will it take to make the medicine? Given the available replacements
+  and the medicine molecule in your puzzle input, what is the fewest number of
+  steps to go from e to the medicine molecule?
 
   """
 
-  @regex_line ~r/([A-Z][a-z]?) \=\> ([A-Z][A-Za-z]*)/
+  @regex_line ~r/([A-Za-z]+) \=\> ([A-Za-z]+)/
 
   def parse(text) do
     Regex.scan(@regex_line, text)
@@ -81,6 +109,48 @@ defmodule Day19 do
         do_replacement(str, dict, pfx <> <<c1>>, acc)
       list ->
         do_replacement(str, dict, pfx <> <<c1>>, acc ++ Enum.map(list, fn (r) -> "#{pfx}#{r}#{str}" end))
+    end
+  end
+
+  # count = 0
+  # while data.length > 1 do
+  #     abbr.keys.sort{|a,b| b.length <=> a.length}.each do |key|
+  #         count += 1 while data.sub! key, abbr[key]
+  #     end
+  # end
+  # count
+  def count_steps(string, dict) do
+    do_count(string, dict, 0)
+  end
+
+  def do_count("e", dict, count), do: count
+  def do_count(str, dict, count) do
+    result =
+      dict
+      |> Enum.flat_map(fn ({k, vals}) ->
+        Enum.map(vals, fn (val) -> {val, k} end)
+      end)
+      |> Enum.sort_by(fn ({k, v}) -> String.length(k) end)
+      |> IO.inspect
+      |> Enum.reduce({str, count}, fn ({k, v}, {str, acc}) ->
+        {new_str, cnt} = count_replacements(str, k, v)
+        IO.puts "#{str} -> #{new_str}"
+        {new_str, acc + cnt}
+      end)
+    {new_str, count} = result
+    do_count(new_str, dict, count)
+  end
+
+  def count_replacements(string, to_replace, replacement) do
+    do_count_replacements(string, to_replace, replacement, 0)
+  end
+
+  def do_count_replacements(string, to_replace, replacement, count) do
+    case String.replace(string, to_replace, replacement, global: false) do
+      ^string ->
+        {string, count}
+      new_string ->
+        do_count_replacements(new_string, to_replace, replacement, count + 1)
     end
   end
 
@@ -123,7 +193,37 @@ defmodule Day19Test do
     assert expected == result
   end
 
-  test "input 1" do
+  test "" do
+    dict = %{
+      "e" => ["H", "O"],
+      "H" => ["HO", "OH"],
+      "O" => ["HH"],
+    }
+
+    assert 3 == Day19.count_steps("HOH", dict)
+    assert 6 == Day19.count_steps("HOHOHO", dict)
+  end
+
+  # test "input 1" do
+
+  #   [rules, input] =
+  #     File.read!("day19.txt")
+  #     |> String.split("\n\n")
+  #     |> Enum.map(&String.strip/1)
+
+  #   dict = Day19.parse(rules)
+
+  #   IO.puts "part 1"
+  #   input
+  #   |> Day19.replacements(dict)
+  #   |> Enum.uniq
+  #   |> IO.inspect
+  #   |> Enum.count
+  #   |> IO.puts
+
+  # end
+
+  test "input 2" do
 
     [rules, input] =
       File.read!("day19.txt")
@@ -132,13 +232,10 @@ defmodule Day19Test do
 
     dict = Day19.parse(rules)
 
+    IO.puts "part 2"
     input
-    |> Day19.replacements(dict)
-    |> Enum.uniq
-    |> IO.inspect
-    |> Enum.count
+    |> Day19.count_steps(dict)
     |> IO.puts
-
 
   end
 
