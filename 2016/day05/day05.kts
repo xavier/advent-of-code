@@ -21,13 +21,13 @@ fun md5(input: String) : String {
   return digest.digest(input.toByteArray()).toHexString()
 }
 
-fun guessPassword(input: String) {
-  generateSequence(0) { it + 1 }
+fun guessPassword(input: String) : String {
+  return generateSequence(0) { it + 1 }
     .map { md5(input + it) }
     .filter { it.startsWith("00000") }
     .map { s:String -> s.substring(5, 6) }
     .take(8)
-    .forEach { s:String -> println(s) }
+    .joinToString("")
 }
 
-guessPassword("reyedfim")
+println(guessPassword("reyedfim"))
