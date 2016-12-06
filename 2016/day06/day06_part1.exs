@@ -2,7 +2,7 @@ File.stream!("input.txt")
 |> Enum.map(fn (line) -> line |> String.trim |> String.codepoints end)
 |> Enum.reduce(%{}, fn (letters, acc) ->
   Enum.reduce(letters, {acc, 0}, fn (letter, {acc, position}) ->
-    new_acc = Map.update(acc, position, %{}, fn (counters) ->
+    new_acc = Map.update(acc, position, %{letter => 0}, fn (counters) ->
       Map.update(counters, letter, 0, fn count -> count + 1 end)
     end)
     {new_acc, position + 1}
@@ -15,3 +15,5 @@ end)
 end)
 |> Enum.join
 |> IO.puts
+
+
