@@ -9,7 +9,7 @@ File.stream!("input.txt")
   end)
   |> elem(0)
 end)
-|> Enum.map(fn {position, counters} ->
+|> Enum.map(fn {_, counters} ->
   [{letter, _} | _] = Enum.sort_by(counters, fn {_, count} -> -count end)
   letter
 end)
