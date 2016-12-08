@@ -76,8 +76,13 @@ end
 # puts display
 # puts display.count_lit
 
-puts File
+display = File
   .read("input.txt")
   .split("\n")
   .reduce(Display.new(50, 6)) { |display, instruction| interpret(instruction, display) }
-  .count_lit
+
+# Part 1
+puts display.count_lit
+
+# Part 2
+puts display
