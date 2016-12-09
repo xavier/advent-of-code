@@ -1,61 +1,16 @@
-
-class UnexpectedToken < StandardError
-end
-
-class Scanner
-
-  def initialize(string)
-    @string = string
-  end
-
-  def consume(pattern)
-    case pattern
-    when Fixnum
-      consumed = @string.slice(0, pattern)
-      skip(pattern)
-      consumed
-    when String
-      if @string.start_with?(pattern)
-        skip(pattern.size)
-        pattern
-      else
-        raise UnexpectedToken, "#{pattern} at #{@string[0, 20].inspect}..."
-      end
-    when Regexp
-      if @string =~ pattern
-        skip($1.size)
-        $1
-      else
-        raise UnexpectedToken, "#{pattern} at #{@string[0, 20].inspect}..."
-      end
-    end
-  end
-
-  def skip(count = 1)
-    @string = @string.slice(count..-1) || ""
-  end
-
-  def number
-    consume(/\A(\d+)/).to_i
-  end
-
-  def done?
-    @string.empty?
-  end
-
-end
+require "strscan"
 
 def decompress(string)
-  scanner = Scanner.new(string)
+  scanner = StringScanner.new(string)
   out = ""
-  until scanner.done?
-    char = scanner.consume(1)
+  until scanner.eos?
+    char = scanner.scan(/[A-Z\(]/)
     if char == "("
-      size = scanner.number
-      scanner.consume("x")
-      count = scanner.number
-      scanner.consume(")")
-      repeated = scanner.consume(size)
+      size = scanner.scan(/\d+/).to_i
+      scanner.scan(/x/)
+      count = scanner.scan(/\d+/).to_i
+      scanner.scan(/\)/)
+      repeated = scanner.scan(/.{#{size}}/)
       out << (repeated * count)
     else
       out << char
@@ -78,3 +33,5 @@ end
 
 compressed_input = File.read("input.txt").gsub(/\s+/, "")
 puts decompress(compressed_input).size
+
+

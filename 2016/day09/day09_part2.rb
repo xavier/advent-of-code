@@ -1,62 +1,17 @@
+require "strscan"
 
-class UnexpectedToken < StandardError
-end
-
-class Scanner
-
-  def initialize(string)
-    @string = string
-  end
-
-  def consume(pattern)
-    case pattern
-    when Fixnum
-      consumed = @string.slice(0, pattern)
-      skip(pattern)
-      consumed
-    when String
-      if @string.start_with?(pattern)
-        skip(pattern.size)
-        pattern
-      else
-        raise UnexpectedToken, "#{pattern} at #{@string[0, 20].inspect}..."
-      end
-    when Regexp
-      if @string =~ pattern
-        skip($1.size)
-        $1
-      else
-        raise UnexpectedToken, "#{pattern} at #{@string[0, 20].inspect}..."
-      end
-    end
-  end
-
-  def skip(count = 1)
-    @string = @string.slice(count..-1) || ""
-  end
-
-  def number
-    consume(/\A(\d+)/).to_i
-  end
-
-  def done?
-    @string.empty?
-  end
-
-end
-
-def calculate_decompressed_size(string, level = 0)
-  scanner = Scanner.new(string)
+def calculate_decompressed_size(string)
+  scanner = StringScanner.new(string)
   decompressed_size = 0
-  until scanner.done?
-    char = scanner.consume(1)
+  until scanner.eos?
+    char = scanner.scan(/[A-Z\(]/)
     if char == "("
-      size = scanner.number
-      scanner.consume("x")
-      count = scanner.number
-      scanner.consume(")")
-      repeated = scanner.consume(size)
-      decompressed_size += count * calculate_decompressed_size(repeated, level + 1)
+      size = scanner.scan(/\d+/).to_i
+      scanner.scan(/x/)
+      count = scanner.scan(/\d+/).to_i
+      scanner.scan(/\)/)
+      repeated = scanner.scan(/.{#{size}}/)
+      decompressed_size += count * calculate_decompressed_size(repeated)
     else
       decompressed_size += 1
     end
