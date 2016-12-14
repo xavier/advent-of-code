@@ -3,7 +3,7 @@ defmodule Day14 do
   def keys(seed) do
     seed
     |> digest_stream
-    |> each_cons(1000)
+    |> Stream.chunk(1000, 1)
     |> Stream.map(fn (chunk = [{_, digest}|_]) -> {chunk, find_triplet(digest)} end)
     |> Stream.filter(fn ({_, char}) -> char != nil end)
     |> Stream.filter_map(
@@ -25,16 +25,6 @@ defmodule Day14 do
       _ ->
         nil
     end
-  end
-
-  def each_cons(stream, count) when count > 1 do
-    first_chunk = stream |> Stream.take(count) |> Enum.to_list
-    stream
-    |> Stream.drop(count)
-    |> Stream.transform(first_chunk, fn (item, chunk = [_|rest]) ->
-      next_chunk = rest ++ [item]
-      {[chunk], next_chunk}
-    end)
   end
 
   def digest_stream(seed, start_index \\ 0) do
