@@ -3,7 +3,6 @@ defmodule Day15 do
   def slot_at_time({start_position, slots}, time), do: rem(start_position + time, slots)
 
   def discs_aligned?(machine, time) do
-    IO.puts "#{inspect machine} @ #{time}"
     machine
     |> Enum.with_index
     |> Enum.all?(fn ({disc, index}) -> slot_at_time(disc, time + index) == 0 end)
