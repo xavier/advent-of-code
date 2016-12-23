@@ -24,8 +24,11 @@
     end)
   end
 
-  def initial_state(program) do
+  def initial_state(program, :part1) do
     {program, %{ "pc" => 0, "a" => 7, "b" => 0, "c" => 0, "d" => 0 }}
+  end
+  def initial_state(program, :part2) do
+    {program, %{ "pc" => 0, "a" => 12, "b" => 0, "c" => 0, "d" => 0 }}
   end
 
   def run(state = {program, %{"pc" => pc}}) when pc >= 0 do
@@ -100,9 +103,18 @@ end
 # |> IO.inspect
 
 
+# Part 1
+# File.read!("input.txt")
+# |> Day23.parse
+# |> Day23.initial_state(:part1)
+# |> Day23.run
+# |> elem(1)
+# |> IO.inspect
+
+# Part 2
 File.read!("input.txt")
 |> Day23.parse
-|> Day23.initial_state
+|> Day23.initial_state(:part2)
 |> Day23.run
 |> elem(1)
 |> IO.inspect
