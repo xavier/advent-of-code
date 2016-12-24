@@ -9,6 +9,7 @@ class Maze
     @nodes = Set.new
     @start = nil
     @locations = Set.new
+    @paths = {}
   end
 
   def parse(data)
@@ -42,6 +43,11 @@ class Maze
   end
 
   def shortest_path(from_x, from_y, to_x, to_y)
+    key = [[from_x, from_y], [to_x, to_y]]
+    @paths[key] ||= shortest_path!(from_x, from_y, to_x, to_y)
+  end
+
+  def shortest_path!(from_x, from_y, to_x, to_y)
     ShortestPath::Finder.new([from_x, from_y], [to_x, to_y]).tap do |shortest_path|
       shortest_path.ways_finder = Proc.new { |x, y| edges(x, y) }
     end.path
