@@ -29,6 +29,8 @@ end
 
 class Scanner
 
+  attr_reader :garbage_count
+
   def initialize(input)
     @input = input
   end
@@ -40,6 +42,7 @@ class Scanner
     stack.push(Group.new)
 
     garbage = false
+    @garbage_count = 0
 
     while not scanner.eos?
 
@@ -48,14 +51,14 @@ class Scanner
         if scanner.scan(/>/)
           garbage = false
 
-        elsif scanner.scan(/<+/)
-          # Ignore
+        elsif discarded = scanner.scan(/<+/)
+          @garbage_count += discarded.length
 
         elsif scanner.scan(/!./)
           # Skip escaped character
 
-        elsif scanner.scan(/[^!>]+/)
-          # Any other character
+        elsif discarded = scanner.scan(/[^!>]+/)
+          @garbage_count += discarded.length
 
         else
           raise UnexpectedToken, scanner.peek(10)
@@ -108,4 +111,7 @@ end
 
 INPUT = File.read("input.txt").strip
 
-puts Scanner.new(INPUT).scan.score
+scanner = Scanner.new(INPUT)
+group = scanner.scan
+puts group.score
+puts scanner.garbage_count
