@@ -37,9 +37,10 @@ end
 INPUT = File.read("input.txt").split().map(&:to_i)
 
 # Test case
-
 test = Memory.new([0, 2, 7, 0])
 puts test.count_cycles_until_same
 
-part1 = Memory.new(INPUT.dup)
-puts part1.count_cycles_until_same
+# Puzzle
+memory = Memory.new(INPUT.dup)
+puts memory.count_cycles_until_same # part 1
+puts memory.count_cycles_until_same # part 2
