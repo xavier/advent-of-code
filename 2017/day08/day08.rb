@@ -58,8 +58,11 @@ end
 
 class Registers
 
+  attr_reader :all_time_max_value
+
   def initialize
     @regs = Hash.new { |h, k| h[k] = 0 }
+    @all_time_max_value = 0
   end
 
   def get(name)
@@ -68,13 +71,14 @@ class Registers
 
   def set(name, value)
     @regs[name] = value
+    @all_time_max_value = value if value > @all_time_max_value
   end
 
   def update(name, &block)
     set(name, block.call(get(name)))
   end
 
-  def max_value
+  def current_max_value
     @regs.values.max
   end
 
@@ -98,12 +102,13 @@ class VM
 end
 
 TEST = Program.parse(File.read("test.txt"))
-p TEST
 
 vm = VM.new.execute(TEST)
-puts vm.registers.max_value
+puts vm.registers.current_max_value
+puts vm.registers.all_time_max_value
 
 INPUT = Program.parse(File.read("input.txt"))
 
 vm = VM.new.execute(INPUT)
-puts vm.registers.max_value
+puts vm.registers.current_max_value
+puts vm.registers.all_time_max_value
