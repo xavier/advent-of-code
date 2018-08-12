@@ -7,16 +7,28 @@ class Knot
     @skip_size = 0
   end
 
-  def tie(lengths)
-    lengths.each do |length|
-      reverse(length)
-      skip(length)
+  def tie(lengths, rounds = 1)
+    rounds.times do
+      lengths.each do |length|
+        reverse(length)
+        skip(length)
+      end
     end
     self
   end
 
   def check
     @points.take(2).reduce(:*)
+  end
+
+  def knot_hash
+    dense_hash.pack("c*").unpack("H*").first
+  end
+
+  def dense_hash(block_size = 16)
+    @points
+      .each_slice(@points.size / block_size)
+      .map { |slice| slice.reduce(&:^) }
   end
 
   private
@@ -55,11 +67,16 @@ class Knot
 
 end
 
-
 test_knot = Knot.new(5)
 puts test_knot.tie([3, 4, 1, 5]).check
 
+RAW_INPUT = File.read("input.txt").strip
 
-INPUT = File.read("input.txt").split(",").map(&:to_i)
-puzzle_knot = Knot.new(256)
-puts puzzle_knot.tie(INPUT).check
+INPUT_PART1 = RAW_INPUT.split(",").map(&:to_i)
+INPUT_PART2 = RAW_INPUT.bytes + [17, 31, 73, 47, 23]
+
+part1 = Knot.new(256)
+puts part1.tie(INPUT_PART1).check
+
+part2 = Knot.new(256)
+puts part2.tie(INPUT_PART2, 64).knot_hash
