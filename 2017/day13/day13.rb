@@ -96,7 +96,7 @@ class Scanner
     @firewall = firewall
   end
 
-  def scan
+  def scan()
     @firewall.traverse.reduce(0) do |trip_severity, layer|
       if layer.caught?
         trip_severity + layer.severity
@@ -106,12 +106,32 @@ class Scanner
     end
   end
 
+  def win?(delay)
+    delay.times { @firewall.tick! }
+    @firewall.traverse.none? { |layer| layer.caught? }
+  end
+
 end
 
-test_fw = Firewall.parse(File.read("test.txt"))
-test_scan = Scanner.new(test_fw)
-p test_scan.scan
+def find_delay(config)
+  delay = 0
+  loop do
+    fw = Firewall.parse(config)
+    return delay if Scanner.new(fw).win?(delay)
+    delay += 1
+  end
+end
 
-puzzle_fw = Firewall.parse(File.read("input.txt"))
+TEST = File.read("test.txt")
+
+test_fw = Firewall.parse(TEST)
+test_scan = Scanner.new(test_fw)
+puts test_scan.scan
+puts find_delay(TEST)
+
+INPUT = File.read("input.txt")
+
+puzzle_fw = Firewall.parse(INPUT)
 puzzle_scan = Scanner.new(puzzle_fw)
-p puzzle_scan.scan
+puts puzzle_scan.scan
+puts find_delay(INPUT)
