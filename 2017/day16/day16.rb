@@ -1,3 +1,4 @@
+require "set"
 
 class Dance
 
@@ -10,6 +11,18 @@ class Dance
   def perform(moves)
     moves.each { |move| perform_move(move) }
     self
+  end
+
+  def repeats_after(moves)
+    seen = Set.new
+    loop do
+      outcome = perform(moves).to_s
+      if seen.include?(outcome)
+        return seen.size
+      else
+        seen << outcome
+      end
+    end
   end
 
   def to_s
@@ -56,6 +69,12 @@ end
 
 INPUT = File.read("input.txt").strip.split(",")
 
+# Part 1
 dance = Dance.new("a".."p")
-
 puts dance.perform(INPUT).to_s
+
+# Part 2
+cycle =  Dance.new("a".."p").repeats_after(INPUT)
+dance = Dance.new("a".."p")
+(1_000_000_000 % cycle).times { dance.perform(INPUT) }
+puts dance.to_s
